@@ -2,6 +2,7 @@ package com.devtiro.LibraryCrud.controllers;
 
 import com.devtiro.LibraryCrud.Mappers.Mapper;
 import com.devtiro.LibraryCrud.Services.BookService;
+import com.devtiro.LibraryCrud.domain.AuthorEntity;
 import com.devtiro.LibraryCrud.domain.BookEntity;
 import com.devtiro.LibraryCrud.domain.Dto.BookDto;
 import org.springframework.data.domain.Page;
@@ -9,8 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookController {
@@ -23,11 +28,42 @@ public class BookController {
         this.mapper = mapper;
     }
 
-    @PutMapping("/book/{ibsd}")
-    public ResponseEntity<BookDto> createBook(@PathVariable String ibsd, @RequestBody BookDto bookDto) {
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @PostMapping("/book")
+    public ResponseEntity<BookDto> createBook(
+            @RequestParam("isbn") String isbn,
+            @RequestParam("title") String title,
+            @RequestParam("authorid") Long authorid,
+            @RequestParam("image") MultipartFile imageFile) {
+
+        try {
+            BookEntity bookEntity = new BookEntity();
+            bookEntity.setIsbn(isbn);
+            bookEntity.setTitle(title);
+
+            AuthorEntity author = new AuthorEntity();
+            author.setAuthorid(authorid);
+            bookEntity.setAuthorid(author);
+
+            bookEntity.setImage(imageFile.getBytes());
+
+            BookEntity saved = bookService.createOrUpdateBook(isbn, bookEntity);
+            BookDto savedDto = mapper.mapToDto(saved);
+
+            return ResponseEntity.ok(savedDto);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @PutMapping("/book/{isbn}")
+    public ResponseEntity<BookDto> createBook(@PathVariable String isbn, @RequestBody BookDto bookDto) {
         BookEntity bookEntity = mapper.mapToEntity(bookDto);
-        boolean itExists = bookService.checkItExists(ibsd);
-        BookEntity savedBookEntity = bookService.createOrUpdateBook(ibsd, bookEntity);
+        boolean itExists = bookService.checkItExists(isbn);
+        BookEntity savedBookEntity = bookService.createOrUpdateBook(isbn, bookEntity);
         BookDto savedBookDto = mapper.mapToDto(savedBookEntity);
 
         if (itExists) {
@@ -38,12 +74,23 @@ public class BookController {
         }
     }
 
+//
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @GetMapping(path = "/books")
+    public List<BookDto> getAllBooks() {
+        List<BookEntity> bookEntities = bookService.getAllBooks();
+        return bookEntities.stream().map(mapper::mapToDto).collect(Collectors.toList());
+    }
+
+    /*@CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(path = "/books")
     public Page<BookDto> getAllBooks(Pageable pageable) {
         Page<BookEntity> bookEntities = bookService.findAll(pageable);
         return bookEntities.map(mapper::mapToDto);
-    }
+    }*/
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(path = "/books/{isbn}")
     public ResponseEntity<BookDto> getBookByIsbn(@PathVariable("isbn") String isbn){
         Optional<BookEntity> bookEntity = bookService.getBookByIsbn(isbn);
@@ -53,6 +100,7 @@ public class BookController {
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @PatchMapping("/books/{isbn}")
     public ResponseEntity<BookDto> updateBook(@PathVariable String isbn, @RequestBody BookDto bookDto) {
         if(!bookService.checkItExists(isbn)){
@@ -63,6 +111,7 @@ public class BookController {
         return new ResponseEntity<>(mapper.mapToDto(book), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @DeleteMapping("/books/{isbn}")
     public ResponseEntity deleteAuthor(@PathVariable String isbn){
         if(!bookService.checkItExists(isbn)){

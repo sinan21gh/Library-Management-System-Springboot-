@@ -29,9 +29,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookEntity> getAllBooks() {
-        return StreamSupport.stream(bookRepository.findAll()
-                .spliterator(), false)
-                .collect(Collectors.toList());
+        return bookRepository.findByTitleBetween("A", "M");
     }
 
     @Override
@@ -50,6 +48,7 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findById(isbn).map(books -> {
             Optional.ofNullable(book.getTitle()).ifPresent(books::setTitle);
             Optional.ofNullable(book.getAuthorid()).ifPresent(books::setAuthorid);
+            Optional.ofNullable(book.getImage()).ifPresent(books::setImage);
             return bookRepository.save(books);
         }).orElseThrow(() -> new RuntimeException("Book Not Found!"));
     }

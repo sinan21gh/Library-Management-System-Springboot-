@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -23,4 +26,10 @@ public class BookEntity {
     @JoinColumn(name = "authorid")
     private AuthorEntity authorid;
 
+    @Lob
+    @Column(name = "image", columnDefinition = "LONGBLOB")
+    private byte[] image;
+
+    /*@ManyToMany(mappedBy = "favoriteBooks")
+    private Set<Users> users = new HashSet<>();*/
 }

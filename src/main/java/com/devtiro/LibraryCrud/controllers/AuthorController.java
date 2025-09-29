@@ -26,6 +26,8 @@ public class AuthorController {
         this.mapper = mapper;
     }
 
+
+    @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping(path = "/about")
     public ResponseEntity<AuthorDto> createAuthor(@RequestBody AuthorDto Authordto){
         AuthorEntity authorentity = mapper.mapToEntity(Authordto);
@@ -34,12 +36,14 @@ public class AuthorController {
         return new ResponseEntity<>(authorsdto, HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/about")
+    @CrossOrigin(origins = "http://localhost:5173")
+    @GetMapping(path = "/author")
     public List<AuthorDto> getAllAuthors(){
         List<AuthorEntity> author = authorService.getAllAuthors();
         return author.stream().map(mapper::mapToDto).collect(Collectors.toList());
     }
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(path = "/about/{authorid}")
     public ResponseEntity<AuthorDto> getAuthorById(@PathVariable Long authorid){
         Optional<AuthorEntity> author = authorService.getSingleAuthorByid(authorid);
@@ -49,6 +53,8 @@ public class AuthorController {
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+
+    @CrossOrigin(origins = "http://localhost:5173")
     @PutMapping("/about/{authorid}")
     public ResponseEntity<AuthorDto> updateAuthor(@PathVariable Long authorid, @RequestBody AuthorDto authorDto){
         if (!authorService.checkItExists(authorid)) {
@@ -60,6 +66,7 @@ public class AuthorController {
         return new ResponseEntity<>(mapper.mapToDto(author), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @PatchMapping("/about/{id}")
     public ResponseEntity<AuthorDto> patchAuthor(@PathVariable Long id, @RequestBody AuthorDto authorDto){
         if (!authorService.checkItExists(id)) {
@@ -71,6 +78,7 @@ public class AuthorController {
         return new ResponseEntity<>(mapper.mapToDto(authorEntity1), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:5173")
     @DeleteMapping("/about/{id}")
     public ResponseEntity deleteAuthor(@PathVariable Long id){
         if(!authorService.checkItExists(id)){
