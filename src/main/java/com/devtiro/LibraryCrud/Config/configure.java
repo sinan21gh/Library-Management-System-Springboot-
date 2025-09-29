@@ -25,7 +25,7 @@ public class configure {
     @Autowired
     private JwtFilter jwtFilter;
 
-    //could use autowired
+
     @Autowired
     private UserDetailsService userDetailsService;
 
