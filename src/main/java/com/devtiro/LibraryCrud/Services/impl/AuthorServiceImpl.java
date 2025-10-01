@@ -31,6 +31,10 @@ public class AuthorServiceImpl implements AuthorService {
                         .collect(Collectors.toList());
 
     }
+    @Override
+    public AuthorEntity getAuthorById(Long authorid) {
+        return authorRepository.findByAuthorid(authorid);
+    }
 
     @Override
     public Optional<AuthorEntity> getSingleAuthorByid(Long id) {

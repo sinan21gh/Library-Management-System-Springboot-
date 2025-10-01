@@ -1,6 +1,7 @@
 package com.devtiro.LibraryCrud.controllers;
 
 import com.devtiro.LibraryCrud.Mappers.Mapper;
+import com.devtiro.LibraryCrud.Services.AuthorService;
 import com.devtiro.LibraryCrud.Services.BookService;
 import com.devtiro.LibraryCrud.domain.AuthorEntity;
 import com.devtiro.LibraryCrud.domain.BookEntity;
@@ -23,9 +24,12 @@ public class BookController {
     private BookService bookService;
     private Mapper<BookEntity, BookDto> mapper;
 
-    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper) {
+    private AuthorService authorService;
+
+    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper, AuthorService authorService) {
         this.bookService = bookService;
         this.mapper = mapper;
+        this.authorService = authorService;
     }
 
 
@@ -42,16 +46,21 @@ public class BookController {
             bookEntity.setIsbn(isbn);
             bookEntity.setTitle(title);
 
-            AuthorEntity author = new AuthorEntity();
-            author.setAuthorid(authorid);
-            bookEntity.setAuthorid(author);
+            if (authorService.checkItExists(authorid)) {
+                AuthorEntity author = authorService.getAuthorById(authorid);
+                author.setAuthorid(authorid);
+                bookEntity.setAuthorid(author);
 
-            bookEntity.setImage(imageFile.getBytes());
+                bookEntity.setImage(imageFile.getBytes());
 
-            BookEntity saved = bookService.createOrUpdateBook(isbn, bookEntity);
-            BookDto savedDto = mapper.mapToDto(saved);
+                BookEntity saved = bookService.createOrUpdateBook(isbn, bookEntity);
+                BookDto savedDto = mapper.mapToDto(saved);
 
-            return ResponseEntity.ok(savedDto);
+                return ResponseEntity.ok(savedDto);
+            }
+            else{
+                return ResponseEntity.notFound().build();
+            }
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

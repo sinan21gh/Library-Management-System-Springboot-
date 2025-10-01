@@ -12,4 +12,5 @@ import java.util.List;
 public interface AuthorRepository extends CrudRepository<AuthorEntity,Long> {
     @Query("select a from AuthorEntity a where a.age > ?1")
     List<AuthorEntity> AgemaybeGreaterThan(Integer ageIsGreaterThan);
+    AuthorEntity findByAuthorid(Long authorid);
 }

@@ -9,6 +9,9 @@ import java.util.Optional;
 public interface AuthorService {
     AuthorEntity createOrUpdateAuthor(AuthorEntity AuthorEntity);
     List<AuthorEntity> getAllAuthors();
+
+    AuthorEntity getAuthorById(Long authorid);
+
     Optional<AuthorEntity> getSingleAuthorByid(Long id);
     boolean checkItExists(Long id);
     AuthorEntity partialUpdate(Long id, AuthorEntity authorEntity);
