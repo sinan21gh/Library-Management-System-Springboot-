@@ -22,5 +22,5 @@ public class BookDto {
 
     private String imageBase64;
 
-    private Set<Users> users = new HashSet<>();
+//    private Set<Users> users = new HashSet<>();
 }

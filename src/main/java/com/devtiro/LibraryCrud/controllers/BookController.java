@@ -3,9 +3,12 @@ package com.devtiro.LibraryCrud.controllers;
 import com.devtiro.LibraryCrud.Mappers.Mapper;
 import com.devtiro.LibraryCrud.Services.AuthorService;
 import com.devtiro.LibraryCrud.Services.BookService;
+import com.devtiro.LibraryCrud.Services.JWTService;
 import com.devtiro.LibraryCrud.domain.AuthorEntity;
 import com.devtiro.LibraryCrud.domain.BookEntity;
 import com.devtiro.LibraryCrud.domain.Dto.BookDto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,13 +26,14 @@ public class BookController {
 
     private BookService bookService;
     private Mapper<BookEntity, BookDto> mapper;
-
+    private JWTService jwtService;
     private AuthorService authorService;
 
-    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper, AuthorService authorService) {
+    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper, AuthorService authorService, JWTService jwtService) {
         this.bookService = bookService;
         this.mapper = mapper;
         this.authorService = authorService;
+        this.jwtService = jwtService;
     }
 
 
@@ -101,8 +105,14 @@ public class BookController {
 
     @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping(path = "/books/{isbn}")
-    public ResponseEntity<BookDto> getBookByIsbn(@PathVariable("isbn") String isbn){
+    public ResponseEntity<BookDto> getBookByIsbn(@PathVariable("isbn") String isbn, HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         Optional<BookEntity> bookEntity = bookService.getBookByIsbn(isbn);
+
         return bookEntity.map(bookEntity1 -> {
             BookDto bookDto = mapper.mapToDto(bookEntity1);
             return new ResponseEntity<>(bookDto, HttpStatus.OK);
