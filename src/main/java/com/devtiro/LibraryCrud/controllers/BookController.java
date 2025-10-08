@@ -75,6 +75,12 @@ public class BookController {
     @PutMapping("/book/{isbn}")
     public ResponseEntity<BookDto> createBook(@PathVariable String isbn, @RequestBody BookDto bookDto) {
         BookEntity bookEntity = mapper.mapToEntity(bookDto);
+
+        AuthorEntity author = bookEntity.getAuthorid();
+        if (!authorService.getAuthorById(bookEntity.getAuthorid().getAuthorid()).equals(author)) {
+            return ResponseEntity.notFound().build();
+        }
+
         boolean itExists = bookService.checkItExists(isbn);
         BookEntity savedBookEntity = bookService.createOrUpdateBook(isbn, bookEntity);
         BookDto savedBookDto = mapper.mapToDto(savedBookEntity);
@@ -122,6 +128,7 @@ public class BookController {
     @CrossOrigin(origins = "http://localhost:5173")
     @PatchMapping("/books/{isbn}")
     public ResponseEntity<BookDto> updateBook(@PathVariable String isbn, @RequestBody BookDto bookDto) {
+
         if(!bookService.checkItExists(isbn)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -132,12 +139,17 @@ public class BookController {
 
     @CrossOrigin(origins = "http://localhost:5173")
     @DeleteMapping("/books/{isbn}")
-    public ResponseEntity deleteAuthor(@PathVariable String isbn){
+    public ResponseEntity<String> deleteAuthor(@PathVariable String isbn, HttpServletRequest request){
+
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+        }
         if(!bookService.checkItExists(isbn)){
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("",HttpStatus.NOT_FOUND);
         }
         bookService.deleteBookByIsbn(isbn);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("", HttpStatus.NO_CONTENT);
 
     }
 }

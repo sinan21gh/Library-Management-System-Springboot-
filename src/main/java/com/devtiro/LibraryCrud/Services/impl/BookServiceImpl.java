@@ -29,7 +29,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookEntity> getAllBooks() {
-        return bookRepository.findByTitleBetween("A", "M");
+        return bookRepository.findAll();
+//        return bookRepository.findByTitleBetween("A", "M");
     }
 
     @Override
