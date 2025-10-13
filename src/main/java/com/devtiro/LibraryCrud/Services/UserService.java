@@ -3,6 +3,8 @@ package com.devtiro.LibraryCrud.Services;
 import com.devtiro.LibraryCrud.Repository.UserRepo;
 import com.devtiro.LibraryCrud.domain.Users;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,9 +25,14 @@ public class UserService {
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public Users register(Users users){
+    public ResponseEntity register(Users users){
+        if (userRepo.existsById(users.getUsername())){
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
         users.setPassword(encoder.encode(users.getPassword()));
-        return userRepo.save(users);
+        userRepo.save(users);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+
     }
 
     public String verify(Users users) {

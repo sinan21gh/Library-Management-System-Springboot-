@@ -25,8 +25,8 @@ public class UserController {
 
     @CrossOrigin(origins = "http://localhost:5173")
     @PutMapping("/register")
-    public Users register(@RequestBody Users users){
-        return userService.register(users);
+    public ResponseEntity register(@RequestBody Users users){
+        return new ResponseEntity<>(userService.register(users).getStatusCode());
     }
 
     @CrossOrigin(origins = "http://localhost:5173")
@@ -56,6 +56,19 @@ public class UserController {
                 .build();
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @DeleteMapping(path = "/deleteuser")
+    public ResponseEntity deleteUser(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        String username = jwtService.extractUserName(token);
+        userRepo.deleteById(username);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
 }
