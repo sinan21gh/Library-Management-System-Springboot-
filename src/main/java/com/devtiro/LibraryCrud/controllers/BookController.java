@@ -26,14 +26,13 @@ public class BookController {
 
     private BookService bookService;
     private Mapper<BookEntity, BookDto> mapper;
-    private JWTService jwtService;
+
     private AuthorService authorService;
 
-    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper, AuthorService authorService, JWTService jwtService) {
+    public BookController(BookService bookService, Mapper<BookEntity, BookDto> mapper, AuthorService authorService) {
         this.bookService = bookService;
         this.mapper = mapper;
         this.authorService = authorService;
-        this.jwtService = jwtService;
     }
 
 
